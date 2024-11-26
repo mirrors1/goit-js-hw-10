@@ -84,11 +84,6 @@ class Timer {
   }
   stop() {
     clearInterval(this.intervalId);
-    const time = this.convertMs(0);
-    this.onTick(time);
-    this.isActive = false;
-    this.elementSetDisable(this.btn, false);
-    this.elementSetDisable(this.input, false);
   }
 
   convertMs(ms) {
