@@ -57,7 +57,7 @@ class Timer {
   init() {
     this.isActive = false;
     this.intervalId = null;
-    const time = this.getTimeComponent(0);
+    const time = this.convertMs(0);
     this.onTick(time);
     this.elementSetDisable(this.btn, true);
     this.elementSetDisable(this.input, false);
@@ -74,7 +74,7 @@ class Timer {
     this.intervalId = setInterval(() => {
       const currentTime = Date.now();
       const deltaTime = userSelectedDate - currentTime;
-      const time = this.getTimeComponent(deltaTime);
+      const time = this.convertMs(deltaTime);
       if (deltaTime < 1000) {
         this.stop();
         this.init();
@@ -84,24 +84,32 @@ class Timer {
   }
   stop() {
     clearInterval(this.intervalId);
-    const time = this.getTimeComponent(0);
+    const time = this.convertMs(0);
     this.onTick(time);
     this.isActive = false;
     this.elementSetDisable(this.btn, false);
     this.elementSetDisable(this.input, false);
   }
 
-  getTimeComponent(time) {
-    const days = this.pad(
-      Math.floor((time % (1000 * 60 * 60 * 24 * 99)) / (1000 * 60 * 60 * 24))
-    );
-    const hours = this.pad(
-      Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    );
-    const mins = this.pad(Math.floor((time % (1000 * 60 * 60)) / (1000 * 60)));
-    const secs = this.pad(Math.floor((time % (1000 * 60)) / 1000));
+  convertMs(ms) {
+    // Number of milliseconds per unit of time
+    const second = 1000;
+    const minute = second * 60;
+    const hour = minute * 60;
+    const day = hour * 24;
 
-    return { days, hours, mins, secs };
+    // Remaining days
+    const days = this.pad(Math.floor(ms / day));
+    // Remaining hours
+    const hours = this.pad(Math.floor((ms % day) / hour));
+    // Remaining minutes
+    const minutes = this.pad(Math.floor(((ms % day) % hour) / minute));
+    // Remaining seconds
+    const seconds = this.pad(
+      Math.floor((((ms % day) % hour) % minute) / second)
+    );
+
+    return { days, hours, minutes, seconds };
   }
 
   pad(value) {
@@ -120,9 +128,9 @@ const timer = new Timer({
 
 btnStart.addEventListener('click', timer.start.bind(timer));
 
-function updateClockfase({ days, hours, mins, secs }) {
+function updateClockfase({ days, hours, minutes, seconds }) {
   clockfaceDataDays.textContent = `${days}`;
   clockfaceDataHours.textContent = `${hours}`;
-  clockfaceDataMinutes.textContent = `${mins}`;
-  clockfaceDataSeconds.textContent = `${secs}`;
+  clockfaceDataMinutes.textContent = `${minutes}`;
+  clockfaceDataSeconds.textContent = `${seconds}`;
 }
